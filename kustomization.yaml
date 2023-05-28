@@ -1,0 +1,5 @@
+secretGenerator:
+resources:
+  - secrets.yaml
+  - mysql-deployment.yaml
+  #- obo-springboot-deployment.yaml

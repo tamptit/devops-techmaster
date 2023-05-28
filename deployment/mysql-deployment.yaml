@@ -3,14 +3,13 @@ kind: Service
 metadata:
   name: obo-mysql
   labels:
-    app: mysql
+    app: obo
 spec:
   ports:
     - port: 3306
-      targetPort: 3306
   selector:
-    app: mysql
-    tier: database
+    app: obo
+    tier: mysql
   clusterIP: None
 ---
 apiVersion: v1
@@ -26,7 +25,7 @@ spec:
     requests:
       storage: 2Gi
 ---
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: obo-mysql
@@ -36,34 +35,24 @@ spec:
   selector:
     matchLabels:
       app: obo
-      tier: database
+      tier: mysql
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
         app: obo
-        tier: database
+        tier: mysql
     spec:
       containers:
-      - image: mysql
+      - image: mysql:5.6
         name: mysql
         env:
-         - name: MYSQL_ROOT_PASSWORD
-           valueFrom:
-             secretKeyRef:
-               name: mysql-pass
-               key: root_password
-	 - name: MYSQL_USER
-	   valueFrom:
-	     secretKeyRef:
-	       name: mysql-secret
-	       key: mysql_user
-	 - name: MYSQL_PASSWORD
-	   valueFrom:
-	     secretKeyRef:
-	       name: mysql-secret
-	       key: mysql_password
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
         ports:
         - containerPort: 3306
           name: mysql

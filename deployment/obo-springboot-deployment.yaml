@@ -6,52 +6,50 @@ metadata:
     name: obo-springboot
 spec:
   ports:
-    - nodePort: 30163 
-      port: 8080      
-      targetPort: 8080  
-      protocol: TCP
+  - nodePort: 30163 
+    port: 8080      
+    targetPort: 8080  
+    protocol: TCP
   selector:           
     app: obo-springboot
-  type: NodePort       
-
+  type: NodePort
 ---
-apiVersion: apps/v1 
-kind: Deployment    
-metadata:              
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: obo-springboot
-spec:                
-  selector:         
+spec:
+  selector:
     matchLabels:
       app: obo-springboot
-  replicas: 3        
+  replicas: 1
   template:
     metadata:
-      labels:        
+      labels:
         app: obo-springboot
     spec:
       containers:
-        - name: obo-springboot
-          image: obo-springboot:1.0
-          ports:
-            - containerPort: 8080                
-          env:   # Setting Enviornmental Variables
-          - name: DB_HOST   # Setting Database host address from configMap
-            valueFrom: 
-              configMapKeyRef:
-                name: db-conf  # name of configMap
-                key: host
-          - name: DB_NAME  # Setting Database name from configMap
-            valueFrom:
-              configMapKeyRef:
-                name: db-conf 
-                key: name
-          - name: DB_USERNAME  # Setting Database username from Secret
-            valueFrom:
-              secretKeyRef:
-                name: db-credentials # Secret Name
-                key: username
-          - name: DB_PASSWORD # Setting Database password from Secret
-            valueFrom:
-              secretKeyRef:
-                name: db-credentials
-                key: password
+      - name: obo-springboot
+        image: tamanh97/obo-springboot:1.0
+        ports:
+          - containerPort: 8080
+        env:   # Setting Enviornmental Variables
+        - name: DB_HOST
+          value: "10.244.0.7:3306"
+        - name: DB_NAME
+          value: "obo"
+        - name: MYSQL_ROOT_PASSWORD  # Setting Root from Secret
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: root_password
+        - name: DB_USERNAME  # Setting Database username from Secret
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret # Secret Name
+              key: mysql_user
+        - name: DB_PASSWORD # Setting Database password from Secret
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql_password
